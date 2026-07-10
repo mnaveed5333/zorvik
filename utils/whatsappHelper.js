@@ -8,7 +8,7 @@ export const buildWhatsappLink = (vendorWhatsappNumber, orderDetails) => {
   const { orderId, items, customerName, customerWhatsapp, totalAmount } = orderDetails;
 
   let message = `*New Order - Zorvik*%0A`;
-  message += `*Order No:* ${orderId}%0A%0A`;
+  message += `*Order ID:* ${orderId}%0A%0A`;
   message += `*Customer Name:* ${customerName}%0A`;
   items.forEach((item, index) => {
     message += `${index + 1}. ${item.name} - Qty: ${item.quantity} - Rs.${item.price}`;

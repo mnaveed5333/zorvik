@@ -147,6 +147,7 @@ export default function CheckoutContent() {
         }
 
         const link = buildWhatsappLink(product.vendor.whatsappNumber, {
+          orderId,
           items,
           customerName: name,
           customerWhatsapp: whatsapp,
