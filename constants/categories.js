@@ -1,0 +1,17 @@
+export const DEFAULT_CATEGORIES = [
+  { name: "Men's Fashion", slug: "mens-fashion" },
+  { name: "Women's Fashion", slug: "womens-fashion" },
+  { name: "Kids & Baby", slug: "kids-baby" },
+  { name: "Footwear", slug: "footwear" },
+  { name: "Bags & Accessories", slug: "bags-accessories" },
+  { name: "Jewelry & Watches", slug: "jewelry-watches" },
+  { name: "Beauty & Personal Care", slug: "beauty-personal-care" },
+  { name: "Mobiles & Accessories", slug: "mobiles-accessories" },
+  { name: "Electronics & Gadgets", slug: "electronics-gadgets" },
+  { name: "Home & Kitchen", slug: "home-kitchen" },
+  { name: "Furniture & Decor", slug: "furniture-decor" },
+  { name: "Groceries & Essentials", slug: "groceries-essentials" },
+  { name: "Sports & Fitness", slug: "sports-fitness" },
+  { name: "Books & Stationery", slug: "books-stationery" },
+  { name: "Toys & Games", slug: "toys-games" },
+];
