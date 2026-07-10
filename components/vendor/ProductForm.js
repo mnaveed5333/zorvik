@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { X, Plus, Star, ImagePlus, Loader2, Video, PlayCircle } from "lucide-react";
+import { X, Plus, Star, ImagePlus, Loader2, Video, PlayCircle, Pipette } from "lucide-react";
 import { COMMON_COLORS, getColorName } from "@/utils/colorNames";
 
 const DEFAULT_SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
@@ -139,12 +139,19 @@ function SizePoolBuilder({ pool, onAdd, onRemove }) {
   );
 }
 
+// Color picker: quick-pick swatches, recently used, native color input,
+// and a screen-wide eyedropper (EyeDropper API) so a color can be sampled
+// from ANYWHERE on the page/screen — no matter how far the user has
+// scrolled up or down before opening the picker.
 function ColorPoolBuilder({ pool, onAdd, onRemove }) {
   const [customHex, setCustomHex] = useState("#316EB2");
   const [recent, setRecent] = useState([]);
+  const [eyeDropperSupported, setEyeDropperSupported] = useState(false);
+  const [picking, setPicking] = useState(false);
 
   useEffect(() => {
     setRecent(loadRecentColors());
+    setEyeDropperSupported(typeof window !== "undefined" && "EyeDropper" in window);
   }, []);
 
   const addColor = (hex) => {
@@ -152,6 +159,31 @@ function ColorPoolBuilder({ pool, onAdd, onRemove }) {
     if (!normalized || pool.some((c) => c.toLowerCase() === normalized.toLowerCase())) return;
     onAdd(normalized);
     setRecent(saveRecentColor(normalized) || recent);
+  };
+
+  // Opens the browser's native eyedropper overlay. It works across the
+  // ENTIRE screen (not just this component or even this tab's viewport),
+  // so scroll position on the page never limits where a color can be
+  // sampled from.
+  const handleEyeDropper = async () => {
+    if (!eyeDropperSupported) {
+      toast.error("Eyedropper isn't supported in this browser — try Chrome or Edge");
+      return;
+    }
+    try {
+      setPicking(true);
+      const eyeDropper = new window.EyeDropper();
+      const result = await eyeDropper.open();
+      if (result?.sRGBHex) {
+        setCustomHex(result.sRGBHex);
+        addColor(result.sRGBHex);
+        toast.success(`Picked ${getColorName(result.sRGBHex)}`);
+      }
+    } catch {
+      // User pressed Escape / cancelled — no-op
+    } finally {
+      setPicking(false);
+    }
   };
 
   return (
@@ -204,13 +236,29 @@ function ColorPoolBuilder({ pool, onAdd, onRemove }) {
             className="absolute -top-2 -left-2 w-14 h-14 cursor-pointer opacity-0"
           />
         </label>
-        <p className="flex-1 px-3 py-2 rounded-lg border border-[#C7D8EA] bg-[#C7D8EA]/20 text-[#1A1A1A] text-sm">
+
+        <p className="flex-1 px-3 py-2 rounded-lg border border-[#C7D8EA] bg-[#C7D8EA]/20 text-[#1A1A1A] text-sm truncate">
           {getColorName(customHex)}
         </p>
+
+        <button
+          type="button"
+          onClick={handleEyeDropper}
+          disabled={picking}
+          title={eyeDropperSupported ? "Pick a color from anywhere on your screen" : "Eyedropper not supported in this browser"}
+          className={`flex items-center justify-center w-9 h-9 shrink-0 rounded-lg border transition-colors ${
+            eyeDropperSupported
+              ? "bg-white border-[#C7D8EA] text-[#316EB2] hover:bg-[#C7D8EA]/40"
+              : "bg-[#C7D8EA]/20 border-[#C7D8EA] text-[#5D8DC2] cursor-not-allowed"
+          }`}
+        >
+          {picking ? <Loader2 size={14} className="animate-spin" /> : <Pipette size={14} />}
+        </button>
+
         <button
           type="button"
           onClick={() => addColor(customHex)}
-          className="flex items-center gap-1 px-3 rounded-lg bg-white border border-[#C7D8EA] text-[#1A1A1A] text-sm font-medium hover:bg-[#C7D8EA]/40 transition-colors"
+          className="flex items-center gap-1 px-3 h-9 rounded-lg bg-white border border-[#C7D8EA] text-[#1A1A1A] text-sm font-medium hover:bg-[#C7D8EA]/40 transition-colors shrink-0"
         >
           <Plus size={14} /> Add
         </button>
@@ -536,7 +584,7 @@ export default function ProductForm({ initialData = null, onSuccess }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl bg-white text-[#1A1A1A]">
+    <form onSubmit={handleSubmit} className="space-y-6 w-full max-w-2xl mx-auto bg-white text-[#1A1A1A]">
       <Section title="Basic Details">
         <div className="space-y-4">
           <div className="w-full">
@@ -596,6 +644,15 @@ export default function ProductForm({ initialData = null, onSuccess }) {
               />
             </div>
           </div>
+        </div>
+      </Section>
+
+      {/* Sizes & Colors now comes right after Basic Details, before Images/Video */}
+      <Section title="Sizes & Colors">
+        <div className="space-y-5">
+          <SizePoolBuilder pool={form.sizePool} onAdd={addSize} onRemove={removeSize} />
+          <div className="h-px bg-[#C7D8EA]" />
+          <ColorPoolBuilder pool={form.colorPool} onAdd={addColor} onRemove={removeColor} />
         </div>
       </Section>
 
@@ -718,14 +775,6 @@ export default function ProductForm({ initialData = null, onSuccess }) {
             </button>
           </div>
         )}
-      </Section>
-
-      <Section title="Sizes & Colors">
-        <div className="space-y-5">
-          <SizePoolBuilder pool={form.sizePool} onAdd={addSize} onRemove={removeSize} />
-          <div className="h-px bg-[#C7D8EA]" />
-          <ColorPoolBuilder pool={form.colorPool} onAdd={addColor} onRemove={removeColor} />
-        </div>
       </Section>
 
       <button
