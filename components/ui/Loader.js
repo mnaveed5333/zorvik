@@ -8,7 +8,7 @@ export default function Loader({ size = "md" }) {
   return (
     <div className="flex items-center justify-center py-8">
       <div
-        className={`${sizes[size]}  border-[#EC3237] rounded-full animate-spin`}
+        className={`${sizes[size]} border-gray-200 border-t-[#EC3237] rounded-full animate-spin`}
       ></div>
     </div>
   );
