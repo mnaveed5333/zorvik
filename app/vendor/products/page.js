@@ -79,31 +79,45 @@ export default function VendorProductsPage() {
       ) : (
         <div className="bg-white border border-[#C7D8EA] rounded-xl divide-y divide-[#C7D8EA] overflow-hidden">
           {filteredProducts.map((product) => (
-            <div key={product._id} className="flex items-center gap-4 p-4 hover:bg-[#C7D8EA]/10">
+            <div
+              key={product._id}
+              className="relative flex items-start gap-3 p-3 sm:p-4 hover:bg-[#C7D8EA]/10"
+            >
               <img
                 src={product.images?.[0]?.url || "/placeholder.png"}
                 alt={product.name}
-                className="w-16 h-16 rounded-lg object-cover border border-[#C7D8EA] shrink-0"
+                className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg object-cover border border-[#C7D8EA] shrink-0"
               />
-              <div className="flex-1 min-w-0">
-                <h3 className="font-medium text-[#1A1A1A] truncate">{product.name}</h3>
-                <p className="text-sm font-bold text-[#316EB2]">Rs. {product.price?.toLocaleString()}</p>
+
+              <div className="flex-1 min-w-0 pr-16 sm:pr-20">
+                <h3 className="font-medium text-[#1A1A1A] text-sm sm:text-base leading-snug break-words">
+                  {product.name}
+                </h3>
+                <p className="text-sm font-bold text-[#316EB2] mt-0.5">
+                  Rs. {product.price?.toLocaleString()}
+                </p>
                 {product.category?.name && (
-                  <p className="text-xs text-[#5D8DC2]">{product.category.name}</p>
+                  <p className="text-xs text-[#5D8DC2] mt-0.5">{product.category.name}</p>
                 )}
               </div>
-              <div className="flex gap-2 shrink-0">
+
+              {/* Icon-only actions, pinned bottom-right */}
+              <div className="absolute bottom-3 right-3 flex gap-2">
                 <Link
                   href={`/vendor/products/edit/${product._id}`}
-                  className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg bg-[#C7D8EA]/40 text-[#1A1A1A] hover:bg-[#C7D8EA]/70"
+                  aria-label="Edit product"
+                  title="Edit"
+                  className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#C7D8EA]/40 text-[#1A1A1A] hover:bg-[#C7D8EA]/70"
                 >
-                  <Edit size={14} /> Edit
+                  <Edit size={15} />
                 </Link>
                 <button
                   onClick={() => handleDelete(product._id)}
-                  className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg bg-[#EC3237]/10 text-[#EC3237] hover:bg-[#EC3237]/20"
+                  aria-label="Delete product"
+                  title="Delete"
+                  className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#EC3237]/10 text-[#EC3237] hover:bg-[#EC3237]/20"
                 >
-                  <Trash2 size={14} /> Delete
+                  <Trash2 size={15} />
                 </button>
               </div>
             </div>

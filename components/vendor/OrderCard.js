@@ -16,6 +16,7 @@ const statusStyles = {
 export default function OrderCard({ order, vendor, onConfirm, onUnconfirm }) {
   const [expanded, setExpanded] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [includeWatermark, setIncludeWatermark] = useState(true);
   const receiptRef = useRef(null);
   const whatsappLink = buildCustomerContactLink(order.customerWhatsapp, order);
 
@@ -54,24 +55,23 @@ export default function OrderCard({ order, vendor, onConfirm, onUnconfirm }) {
     <div className="bg-white border border-[#C7D8EA] rounded-xl mb-4 overflow-hidden">
       <button
         onClick={() => setExpanded((prev) => !prev)}
-        className="w-full flex items-center justify-between p-4 text-left"
+        className="w-full flex items-center justify-between gap-3 p-4 text-left"
       >
-        <div className="flex items-center gap-4 min-w-0">
+        <div className="flex items-center gap-3 min-w-0">
           <ChevronDown
             size={18}
             className={`shrink-0 text-[#5D8DC2] transition-transform ${expanded ? "rotate-180" : ""}`}
           />
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-[#1A1A1A] truncate">Order #{order.orderId}</p>
-            <p className="text-xs text-[#5D8DC2] truncate">
-              {order.customerName} · {new Date(order.createdAt).toLocaleString()}
-            </p>
-          </div>
+          <p className="text-sm font-semibold text-[#1A1A1A] truncate">Order #{order.orderId}</p>
         </div>
 
-        <div className="flex items-center gap-3 shrink-0">
-          <span className="font-bold text-sm text-[#1A1A1A]">Rs. {order.totalAmount.toLocaleString()}</span>
-          <span className={`text-xs font-medium px-3 py-1 rounded-full capitalize ${statusStyles[order.status]}`}>
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <span className="font-bold text-sm text-[#1A1A1A] whitespace-nowrap">
+            Rs. {order.totalAmount.toLocaleString()}
+          </span>
+          <span
+            className={`text-xs font-medium px-3 py-1 rounded-full capitalize whitespace-nowrap ${statusStyles[order.status]}`}
+          >
             {order.status}
           </span>
         </div>
@@ -79,11 +79,11 @@ export default function OrderCard({ order, vendor, onConfirm, onUnconfirm }) {
 
       {expanded && (
         <div className="px-4 pb-4 border-t border-[#C7D8EA] pt-4">
-          <div className="grid sm:grid-cols-2 gap-4 mb-4">
+          <div className="grid sm:grid-cols-2 gap-4 mb-4 text-center sm:text-left">
             <div className="bg-[#C7D8EA]/20 rounded-lg p-3">
               <p className="text-xs font-semibold text-[#5D8DC2] uppercase mb-1">Customer</p>
-              <p className="text-sm font-semibold text-[#1A1A1A]">{order.customerName}</p>
-              <p className="text-xs text-[#5D8DC2]">{order.customerWhatsapp}</p>
+              <p className="text-sm font-semibold text-[#1A1A1A] break-words">{order.customerName}</p>
+              <p className="text-xs text-[#5D8DC2] break-words">{order.customerWhatsapp}</p>
             </div>
 
             <div className="bg-[#C7D8EA]/20 rounded-lg p-3">
@@ -94,28 +94,43 @@ export default function OrderCard({ order, vendor, onConfirm, onUnconfirm }) {
           </div>
 
           <div className="mb-4">
-            <p className="text-xs font-semibold text-[#5D8DC2] uppercase mb-2">Items</p>
+            <p className="text-xs font-semibold text-[#5D8DC2] uppercase mb-2 text-center sm:text-left">Items</p>
             <div className="space-y-2">
               {order.items.map((item, idx) => (
-                <div key={idx} className="flex justify-between text-sm text-[#1A1A1A] bg-[#C7D8EA]/20 rounded-lg px-3 py-2">
-                  <span>
+                <div
+                  key={idx}
+                  className="flex flex-col sm:flex-row sm:justify-between items-center sm:items-stretch gap-1 sm:gap-2 text-sm text-[#1A1A1A] bg-[#C7D8EA]/20 rounded-lg px-3 py-2 text-center sm:text-left"
+                >
+                  <span className="break-words">
                     {item.name}
                     {item.variant?.size ? ` · ${item.variant.size}` : ""}
                     {item.variant?.color ? ` · ${getColorName(item.variant.color)}` : ""} × {item.quantity}
                   </span>
-                  <span>Rs. {(item.price * item.quantity).toLocaleString()}</span>
+                  <span className="font-medium sm:font-normal shrink-0">
+                    Rs. {(item.price * item.quantity).toLocaleString()}
+                  </span>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="flex items-center justify-between border-t border-[#C7D8EA] pt-3">
-            <div>
+          <div className="border-t border-[#C7D8EA] pt-3 flex flex-col items-center sm:items-stretch gap-3">
+            <div className="text-center sm:text-left">
               <p className="font-bold text-[#1A1A1A]">Total: Rs. {order.totalAmount.toLocaleString()}</p>
               <p className="text-[11px] text-[#5D8DC2]">Delivery charges not included — paid by customer separately</p>
             </div>
 
-            <div className="flex items-center gap-2">
+            <label className="flex items-center justify-center sm:justify-start gap-1.5 text-xs text-[#5D8DC2] select-none w-fit mx-auto sm:mx-0">
+              <input
+                type="checkbox"
+                checked={includeWatermark}
+                onChange={(e) => setIncludeWatermark(e.target.checked)}
+                className="accent-[#EC3237] w-3.5 h-3.5"
+              />
+              Include &quot;PAID&quot; watermark on receipt
+            </label>
+
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
               <button
                 onClick={handleToggleConfirm}
                 className={`flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg text-white ${
@@ -157,32 +172,34 @@ export default function OrderCard({ order, vendor, onConfirm, onUnconfirm }) {
           className="relative w-[380px] bg-white p-6 text-black font-bold overflow-hidden"
           style={{ fontFamily: "'Courier New', monospace" }}
         >
-    <div
-  className="absolute pointer-events-none text-center"
-  style={{
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%) rotate(-30deg)",
-    fontSize: "30px",
-    fontWeight: 1000,
-    border: "4px solid rgba(236, 50, 55, 0.55)",
-    outline: "1.5px solid rgba(236, 50, 55, 0.55)",
-    outlineOffset: "3px",
-    borderRadius: "10px",
-    padding: "8px 16px",
-    letterSpacing: "1.5px",
-    lineHeight: 1.4,
-    whiteSpace: "nowrap",
-    zIndex: 50,
-    overflow: "hidden",
-    backgroundImage:
-      "repeating-linear-gradient(45deg, rgba(236, 50, 55, 0.15) 0px, rgba(236, 50, 55, 0.15) 1px, transparent 1px, transparent 6px)",
-  }}
->
-  <span style={{ position: "relative", zIndex: 1, color: "rgba(236, 50, 55, 0.4)" }}>
-    PRODUCT BILL PAID
-  </span>
-</div>
+          {includeWatermark && (
+            <div
+              className="absolute pointer-events-none text-center"
+              style={{
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%) rotate(-30deg)",
+                fontSize: "30px",
+                fontWeight: 1000,
+                border: "4px solid rgba(236, 50, 55, 0.55)",
+                outline: "1.5px solid rgba(236, 50, 55, 0.55)",
+                outlineOffset: "3px",
+                borderRadius: "10px",
+                padding: "8px 16px",
+                letterSpacing: "1.5px",
+                lineHeight: 1.4,
+                whiteSpace: "nowrap",
+                zIndex: 50,
+                overflow: "hidden",
+                backgroundImage:
+                  "repeating-linear-gradient(45deg, rgba(236, 50, 55, 0.15) 0px, rgba(236, 50, 55, 0.15) 1px, transparent 1px, transparent 6px)",
+              }}
+            >
+              <span style={{ position: "relative", zIndex: 1, color: "rgba(236, 50, 55, 0.4)" }}>
+                PRODUCT BILL PAID
+              </span>
+            </div>
+          )}
 
           <div className="text-center mb-4">
             <p className="text-2xl font-bold tracking-wide text-black">Zorvik</p>

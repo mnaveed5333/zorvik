@@ -51,16 +51,16 @@ export default function AdminContactPage() {
   const formatNumber = (num) => `+${num.slice(0, 2)} ${num.slice(2)}`;
 
   return (
-    <div className="bg-white min-h-screen p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-[#1A1A1A]">Customer Queries</h1>
+    <div className="bg-white min-h-screen p-4 sm:p-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold text-[#1A1A1A]">Customer Queries</h1>
 
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {["all", "new", "resolved"].map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`px-4 py-1.5 rounded-lg text-sm font-medium capitalize transition-colors ${
+              className={`px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-medium capitalize transition-colors ${
                 filter === f
                   ? "bg-[#316EB2] text-white"
                   : "bg-[#C7D8EA]/40 text-[#1A1A1A] hover:bg-[#C7D8EA]/70"
@@ -81,12 +81,14 @@ export default function AdminContactPage() {
           {filteredQueries.map((query) => (
             <div
               key={query._id}
-              className="border border-[#C7D8EA] rounded-xl p-5 bg-white shadow-sm"
+              className="border border-[#C7D8EA] rounded-xl p-4 sm:p-5 bg-white shadow-sm"
             >
-              <div className="flex items-start justify-between gap-4 mb-3">
-                <div>
-                  <p className="font-semibold text-[#1A1A1A]">{query.name}</p>
-                  <p className="text-sm text-gray-500">{formatNumber(query.whatsappNumber)}</p>
+              <div className="flex flex-wrap items-start justify-between gap-2 mb-3">
+                <div className="min-w-0">
+                  <p className="font-semibold text-[#1A1A1A] break-words">{query.name}</p>
+                  <p className="text-sm text-gray-500 break-words">
+                    {formatNumber(query.whatsappNumber)}
+                  </p>
                 </div>
 
                 <span
@@ -101,19 +103,19 @@ export default function AdminContactPage() {
                 </span>
               </div>
 
-              <p className="text-sm text-[#1A1A1A] bg-[#C7D8EA]/20 rounded-lg p-3 mb-3">
+              <p className="text-sm text-[#1A1A1A] bg-[#C7D8EA]/20 rounded-lg p-3 mb-3 break-words">
                 {query.message}
               </p>
 
-              <div className="flex items-center justify-between">
-                <p className="text-xs text-gray-400">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <p className="text-xs text-gray-400 order-2 sm:order-1">
                   {new Date(query.createdAt).toLocaleString()}
                 </p>
 
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2 order-1 sm:order-2">
                   <Button
                     variant="outline"
-                    className="!px-3 !py-1.5 text-xs"
+                    className="!px-3 !py-1.5 text-xs whitespace-nowrap flex-1 sm:flex-none"
                     onClick={() => toggleStatus(query)}
                   >
                     Mark {query.status === "new" ? "Resolved" : "New"}
@@ -122,9 +124,10 @@ export default function AdminContactPage() {
                     href={buildQueryContactLink(query)}
                     target="_blank"
                     rel="noopener noreferrer"
+                    className="flex-1 sm:flex-none"
                   >
-                    <Button variant="whatsapp" className="!px-3 !py-1.5 text-xs">
-                      <span className="flex items-center gap-1.5">
+                    <Button variant="whatsapp" className="!px-3 !py-1.5 text-xs w-full">
+                      <span className="flex items-center justify-center gap-1.5">
                         <MessageCircle size={14} />
                         WhatsApp
                       </span>
